@@ -77,7 +77,6 @@ class base_class:
         import pandas
         import matplotlib.pyplot
         cost_function=(1/2)*(1/m)*(numpy.sum((y_hat-y)**2))
-        print("The cost function is:",cost_function)
         return cost_function
     def iterations(self,no_of_iters,learn,y_hat,y,data,m,n):
         import numpy
@@ -90,9 +89,11 @@ class base_class:
         for iters in range(no_of_iters):
             w_new,b_new=self.gradient_dissent(w_new,b_new,y_hat,y,learn,data,m,n)
             y_hat=self.calculate_predicted_label(w_new,b_new,data,m)
-            print(iters+1)
             no_of_data[iters]=iters
             cost_data[iters]=self.cost_function_for_l_and_p(y_hat,y,m)
+            if((iters+1)%10==0):
+                print(iters+1)
+                print("The cost function is:",cost_data[iters])
         plt.grid(True)
         plt.plot(no_of_data,cost_data)
         return w_new,b_new
@@ -223,7 +224,7 @@ class logistic_regression(base_class):
         for iters in range(no_of_iters):
             w_new,b_new=self.gradient_dissent(w_new,b_new,y_hat,y,learn,data,m,n)
             y_hat=self.finding_sigmoid(w_new,b_new,data,m)
-            if((iters+1)%1==0):
+            if((iters+1)%50==0):
                 print(iters+1)
                 self.cost_function_for_logistic(y_hat,y,m)
         return w_new,b_new  
@@ -410,7 +411,7 @@ class single_layer_neural_network(logistic_regression):
         for i in range(iters):
             z1,a1,z2,a2=self.forward_prop(w1,w2,b1,b2,data_x)
             cost_data[i]=self.cost(indivi_data,a2)
-            if(i%10==0):
+            if((i+1)%10==0):
                 print(i+1)
                 no_of_iters[i]=i
                 print(cost_data[i])
@@ -455,6 +456,7 @@ class n_neural_network(single_layer_neural_network):
         dj_dw={}
         dj_db={}
         temp=a[n+1]-indivi_data
+        m=24000
         for i in range(n+1):
             if(i%2==0):
                 dj_dw[n-i]=np.matmul(temp.T,a[n-i])
@@ -469,9 +471,9 @@ class n_neural_network(single_layer_neural_network):
                 if(i<n):
                     temp=np.matmul(temp,w[n-i])*self.tanh_der(z[n-1-i])
         for i in range(n):
-            w[i]=w[i]-dj_dw[i]
+            w[i]=w[i]-alpha*(1/m)*dj_dw[i]
             for j in range(int(b[i].shape[0])):
-                b[i][j]=b[i][j]-dj_db[i][j]
+                b[i][j]=b[i][j]-alpha*(1/m)*dj_db[i][j]
         return w,b
     def apply_n_layer_neural_network(self,data,n,iters,alpha):
         import numpy as np
@@ -487,8 +489,8 @@ class n_neural_network(single_layer_neural_network):
             if(i<n):
                 a="enter number of neurons in layer "+str(i+1)+":"
                 temp[i+1]=int(input(a))
-            w[i]=np.random.randn(int(temp[i+1]),int(temp[i]))*0.01
-            b[i]=np.random.randn(int(temp[i+1]),1)*0.01
+            w[i]=np.random.randn(int(temp[i+1]),int(temp[i]))
+            b[i]=np.random.randn(int(temp[i+1]),1)
         cost_data=np.zeros(iters)
         no_of_iters=np.zeros(iters)
         data_x,y=self.show_data(data)
@@ -498,11 +500,12 @@ class n_neural_network(single_layer_neural_network):
         # b1=np.random.randn(28,1)
         # b2=np.random.randn(10,1)
         for i in range(iters):
-            print(i+1)
             z,a=self.forward_prop_for_n(n,w,b,data_x)
             no_of_iters[i]=i
             cost_data[i]=self.cost(indivi_data,a[n+1])
-            print(cost_data[i])
+            if((i+1)%10==0):
+                print(i+1)
+                print(cost_data[i])
             w,b=self.back_prop_for_n(n,w,b,z,a,indivi_data,alpha)
         plt.grid(True)
         plt.plot(no_of_iters,cost_data)
