@@ -389,9 +389,9 @@ class single_layer_neural_network(logistic_regression):
         dj_db2=np.sum(temp2,axis=0)
         dj_db1=np.sum(temp1,axis=0)
         for i in range(b2.shape[0]):
-            b2[i]=b2[i]-(alpha*dj_db2[i])
+            b2[i]=b2[i]-((1/m)*alpha*dj_db2[i])
         for i in range(b1.shape[0]):
-            b1[i]=b1[i]-(alpha*dj_db1[i])
+            b1[i]=b1[i]-((1/m)*alpha*dj_db1[i])
         w2=w2-(alpha*dj_dw2)
         w1=w1-(alpha*dj_dw1)
         return w1,b1,w2,b2
